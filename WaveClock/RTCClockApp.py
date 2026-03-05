@@ -6,7 +6,7 @@ from tm1637 import TM1637
 from TimeSource import TimeSource
 from TimeSyncer import TimeSyncer
 from micropython import schedule
-from machine import Timer
+import _thread
 from machine import idle
 
 MODE_TIME = 0
@@ -32,10 +32,8 @@ class RTCClockApp(Debug):
         self.disp = display_dev
         self.timesrc = time_source
         self.timesync = time_sync
-        # タイマー10ms
-        self.tm = Timer()
-        # 表示更新処理中フラグ（キュー溢れ防止用）
-        self._updating = False
+        # 継続フラグ
+        self._continue = False
         # 1つ前の秒
         self.prev_sec = -1
         # 初期表示
@@ -92,26 +90,12 @@ class RTCClockApp(Debug):
 
         self.setup_rtc = True
     
-    @micropython.native
-    def _timer_handler(self,t):
+    def _update_display(self):
         """
-        10msタイマー割り込みハンドラ
-        実際の処理はschedule()に委譲
+        表示の更新を行うスレッド
         """
-        # 前回の処理が終わっていない、またはキューが一杯の場合はスキップする
-        if not self._updating:
-            try:
-                schedule(self._update_display, None)
-                self._updating = True
-            except RuntimeError:
-                self.dprint("--- schedule() queue full ---")
-
-    @micropython.native
-    def _update_display(self, _):
-        """
-        表示の更新を行う（メインスレッドで実行）
-        """
-        try:
+        while self._continue:
+            time.sleep_ms(50)      # 50ms
             now = time.localtime()
             sec = now[5]
             if self.prev_sec != sec or self.prev_mode != self.mode:
@@ -132,14 +116,17 @@ class RTCClockApp(Debug):
                     elif self.mode == MODE_SEC:
                         disp_str = "%2d%2d" % (now[4], now[5])
                 self.disp.show_str(disp_str)
-        finally:
-            # 処理完了（またはエラー発生）時にフラグを下ろす
-            self._updating = False
     
     def run(self):
         """
         アプリケーションメインループ
         """
-        self.tm.init(mode=Timer.PERIODIC, period=10, callback=self._timer_handler)
-        while True:
-            idle()
+        self._continue = True   # スレッド起動
+        _thread.start_new_thread(self._update_display,())
+        try:
+            while True:
+                idle()
+        except Exception as e:   # なにか起きたら停止する
+            self.dprint(f"Main loop error: {e}")
+        finally:
+            self._continue = False

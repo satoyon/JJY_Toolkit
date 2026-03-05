@@ -36,3 +36,6 @@ app = RTCClockApp(disp, jjy, receiver,
 
 # 時計スタート
 app.run()
+# 終了処理
+jjy.release()
+disp.release()
