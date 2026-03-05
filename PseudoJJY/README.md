@@ -24,3 +24,12 @@ WIFI_CONFIG = {
     "pass": "your_passphrase"       # 接続パス
 }
 ```
+
+## 西日本JJYの60kHzにしたいときは
+
+pseudo_jjy.pyでは、ステートマシン`_40kHz_osc`で搬送波の発振を行っています。4命令で1周期ですから、`_40kHz_osc`を240kHzで動作させれば、搬送波の周波数が西日本（佐賀県）JJYの60kHzになります。pseudo_jjy.pyの141行目を次のように変更してください。
+
+```python
+    # 240kHz / 4 = 60kHz
+    sm_osc  = rp2.StateMachine(0, _40kHz_osc, freq=240000, set_base=osc)
+```
