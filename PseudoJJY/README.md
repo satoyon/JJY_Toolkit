@@ -16,7 +16,7 @@ JJYの電波は、PCやディスプレイなどが発するノイズにより受
 
 ## WIFI_CONFIG.py
 
-pseudo_jjy.pyと同時に下のような`WIFI_CONFIG.py`を作成し、Pico W/Pico 2 Wにアップロードして利用してください。
+pseudo_jjy.pyと同時に下のような`config.py`を作成し、Pico W/Pico 2 Wにアップロードして利用してください。
 
 ```python
 WIFI_CONFIG = {
