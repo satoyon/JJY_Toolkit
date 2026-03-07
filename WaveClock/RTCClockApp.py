@@ -141,5 +141,10 @@ class RTCClockApp(Debug):
         アプリケーションメインループ
         """
         self.tm.init(mode=Timer.PERIODIC, period=10, callback=self._timer_handler)
-        while True:
-            idle()
+        try:
+            while True:
+                idle()
+        except Exception as e:
+            self.dprint(e)
+        finally:
+            self.tm.deinit()
