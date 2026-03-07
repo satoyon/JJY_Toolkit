@@ -23,6 +23,7 @@ NTP_CONFIG = {
 * NTPSource.py: NTP時刻ソース
 * TimeSource.py: 基底クラスTimeSource
 * TimeSyncer.py: 基底クラスTimeSyncer
+* Debug.py: Debugクラス
 * NTPClock.py: メインプログラム
 * NTP_CONFIG.py: 設定ファイル（上記）
 * tm1637.py: TM1637ライブラリ
