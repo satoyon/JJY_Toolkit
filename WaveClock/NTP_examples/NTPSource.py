@@ -29,6 +29,8 @@ class NTPSource(Debug, TimeSyncer, TimeSource):
     def __init__(self, ssid, passwd, sync_indicator_pin=18, sync_interval=120):
         """
         Args:
+        ssid: Wi-Fiアクセスポイント名
+        passwd: Wi-Fi接続パスフレーズ
         sync_indicator_pin: 同期インジケーターのGPIO
         sync_interval: 同時間隔（分）
         """
@@ -55,6 +57,7 @@ class NTPSource(Debug, TimeSyncer, TimeSource):
             schedule(self.sync_start, 0)
 
     def sync_start(self, arg=0):
+        """同期スタート（引数はダミー）"""
         # まずWi-Fi接続
         conn = wifi_connect(self.ssid, self.passwd)
         if conn is not None:
@@ -63,7 +66,7 @@ class NTPSource(Debug, TimeSyncer, TimeSource):
             ntptime.host = "ntp.nict.jp"
             now = ntptime.time() + 9 * 60 * 60  # 日本時間
             data = (now, time.ticks_ms())       # (UNIXエポックタイム, 受信ticks_ms)
-            conn.active(False)      # 電源を切る
+            conn.active(False)      # Wi-Fiの電源を切る
             self.sync_led.value(1)  # 同期LED点灯
             try:
                 for callback in self._callbacks:
@@ -73,6 +76,7 @@ class NTPSource(Debug, TimeSyncer, TimeSource):
                 self.dprint("--- schedule() queue full ---")
         else:
             self.dprint("--- Cant connect to %s", self.ssid)
+            self.sync_led.value(0)  # 同期インジケータ消灯
     
     def sync_stop(self):
         """特にすることはなにもない"""
