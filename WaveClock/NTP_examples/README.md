@@ -28,4 +28,6 @@ NTP_CONFIG = {
 * NTP_CONFIG.py: 設定ファイル（上記）
 * tm1637.py: TM1637ライブラリ
 
+boot.pyをPico W/Pico 2 Wにアップロードしないよう注意してください。boot.pyは、JJY受信ユニットのノイズ対策としてSMPSの動作モードをPWMに切り替える起動スクリプトです。NTPには不要なだけでなく、Pico W/Pico 2 WのSMPSモード切替とは、互換性がないためです。
+
 NTPClock.pyを実行します。少し待つとTM1637のLEDディスプレイに時刻が表示されるでしょう。デフォルトでは120分おきにNTPに接続してRTCの補正を行います。
